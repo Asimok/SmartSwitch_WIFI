@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="[CURRENT ORDER]"
+            android:text="当前操作"
             android:textSize="18sp" />
 
         <TextView
@@ -90,23 +90,75 @@
             android:onClick="onClick_Search"
             android:text="搜索" />
 
-        <Button
-            android:layout_width="fill_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="starttimer"
-            android:text="开灯定时" />
+            android:layout_margin="@dimen/dp_5"
+            android:orientation="horizontal"
+            android:weightSum="8">
 
-        <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:onClick="endtimer"
-            android:text="关灯定时" />
+            <TextView
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_weight="2.5"
+                android:text="开灯时间段："
+                android:textSize="@dimen/sp_16" />
 
-        <Button
-            android:layout_width="fill_parent"
+            <TextView
+                android:id="@+id/opentoclose"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_weight="5.5"
+                android:gravity="center"
+                android:textSize="@dimen/sp_16" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="settime"
-            android:text="发送当前时间" />
+            android:layout_margin="@dimen/dp_5"
+            android:orientation="horizontal"
+            android:weightSum="8">
+
+            <TextView
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_weight="2.5"
+                android:text="当前时间："
+                android:textSize="@dimen/sp_16" />
+
+            <TextView
+                android:id="@+id/countdown"
+                android:layout_width="@dimen/dp_0"
+                android:layout_height="wrap_content"
+                android:layout_weight="5.5"
+                android:gravity="center"
+                android:textSize="@dimen/sp_16" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_0_5"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="starttimer"
+                android:text="开灯定时" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="endtimer"
+                android:text="关灯定时" />
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -136,27 +188,5 @@
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/l2"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/text_2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="[RECEIVE ORDER]"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/msg"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="#EEEEEE"
-            android:gravity="center"
-            android:textSize="20dp" />
-    </LinearLayout>
 
 </RelativeLayout>
