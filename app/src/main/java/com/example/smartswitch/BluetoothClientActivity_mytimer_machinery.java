@@ -41,7 +41,7 @@ import java.util.UUID;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
-public class BluetoothClientActivity_mytimer extends Activity implements OnItemClickListener {
+public class BluetoothClientActivity_mytimer_machinery extends Activity implements OnItemClickListener {
     // UUID，蓝牙建立链接需要的
     public final UUID MY_UUID = UUID
             .fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -127,7 +127,7 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
             } else if (action
                     .equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
 
-                Toast.makeText(BluetoothClientActivity_mytimer.this, "搜索完成", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BluetoothClientActivity_mytimer_machinery.this, "搜索完成", Toast.LENGTH_SHORT).show();
                 Log.d("aa", "搜索完成");
             }
 
@@ -140,14 +140,6 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-//
-//            String s= (String) msg.obj;
-//            message=message+s;
-//            if(message.contains("RTS_Mon->")){
-//                re_msg.setText(message);
-//            }
-//            re_msg.setText("");
-//            re_msg.setText(message);
         }
     };
     TimerTask tasknowtime = new TimerTask() {
@@ -170,7 +162,7 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
 
                 Log.d("mytime", "到开灯时间了");
                 if (address != null) {
-                    sendOrder(NoTimer.OPEN);
+                    sendOrder(NoTimer_machinery.OPEN);
                 }
 
             }
@@ -185,7 +177,7 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
             if (LED_STATE_CLOSE_Timer.contains(mowtime)) {
                 Log.d("mytime", "到关灯时间了");
                 if (address != null) {
-                    sendOrder(NoTimer.CLOSE);
+                    sendOrder(NoTimer_machinery.CLOSE);
                 }
             }
         }
@@ -208,9 +200,9 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("cc", byte2HexStr(NoTimer.Time));
+        Log.d("cc", byte2HexStr(NoTimer_machinery.Time));
         getPremession();//获取虚拟定位权限
-        setContentView(R.layout.layout_buletooth_seacher_mytimer);
+        setContentView(R.layout.layout_buletooth_seacher_mytimer_machinery);
         open = (Button) findViewById(R.id.open);
         close1 = (Button) findViewById(R.id.close);
         opentimer = (Button) findViewById(R.id.opentimer);
@@ -231,7 +223,7 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
                 } else {
                     receive1.setText("开");
                     if (address != null) {
-                        sendOrder(NoTimer.OPEN);
+                        sendOrder(NoTimer_machinery.OPEN);
 
                     }
                 }
@@ -245,7 +237,7 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
                 } else {
                     receive1.setText("关");
                     if (address != null) {
-                        sendOrder(NoTimer.CLOSE);
+                        sendOrder(NoTimer_machinery.CLOSE);
                     }
                 }
             }
@@ -373,13 +365,13 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
 //        taskopen.cancel();
 //        taskclose.cancel();
 //        tasknowtime.cancel();
-        Intent intent = new Intent(BluetoothClientActivity_mytimer.this, timer_open_mytimer.class);
+        Intent intent = new Intent(BluetoothClientActivity_mytimer_machinery.this, timer_open_mytimer.class);
         startActivityForResult(intent, 1);
     }
 
     public void endtimer(View view) {
 
-        Intent intent = new Intent(BluetoothClientActivity_mytimer.this, timer_close_mytimer.class);
+        Intent intent = new Intent(BluetoothClientActivity_mytimer_machinery.this, timer_close_mytimer.class);
         startActivityForResult(intent, 2);
     }
 
@@ -550,7 +542,7 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
 
                 Log.d("mytime", "到开灯时间了");
                 if (address != null) {
-                    sendOrder(NoTimer.OPEN);
+                    sendOrder(NoTimer_machinery.OPEN);
                 }
 
             }
@@ -568,7 +560,7 @@ public class BluetoothClientActivity_mytimer extends Activity implements OnItemC
             if (LED_STATE_CLOSE_Timer.contains(mowtime) && LED_STATE_CLOSE_Timer.contains(week.trim())) {
                 Log.d("mytime", "到关灯时间了");
                 if (address != null) {
-                    sendOrder(NoTimer.CLOSE);
+                    sendOrder(NoTimer_machinery.CLOSE);
                 }
             }
         }

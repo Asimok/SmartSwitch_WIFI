@@ -19,14 +19,19 @@
         android:roundIcon="@drawable/sm1"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".BluetoothClientActivity_mytimer" android:icon="@drawable/sm1">
+        <activity android:name=".main" android:icon="@drawable/sm1">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
+
+        <activity android:name=".BluetoothClientActivity_mytimer_auto"/>
+        <activity android:name=".BluetoothClientActivity_mytimer_machinery"/>
         <activity android:name=".timer_open">
 
         </activity>

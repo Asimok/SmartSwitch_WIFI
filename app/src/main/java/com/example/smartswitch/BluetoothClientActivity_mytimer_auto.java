@@ -1,6 +1,7 @@
 package com.example.smartswitch;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -10,7 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,6 +24,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,12 +36,13 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Set;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
 
-public class BluetoothClientActivity extends Activity implements OnItemClickListener {
+public class BluetoothClientActivity_mytimer_auto extends Activity implements OnItemClickListener {
     // UUID，蓝牙建立链接需要的
     public final UUID MY_UUID = UUID
             .fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -61,18 +64,18 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
     public OutputStream os;
     public InputStream is;
     //定义按钮
-    //定义按钮
     public Button close1 = null;
     public Button open = null;
     public Button close1timer = null;
     public Button opentimer = null;
     public TextView receive1;
-    public byte[] LED_STATE = {(byte) 0xff, 0x02, 0x00, 0x0A, (byte) 0xfe};
-    public byte[] LED_STATE_OPEN_Timer = {(byte) 0xff, 0x02, 0x00, 0x0A, (byte) 0xfe};
-    public byte[] LED_STATE_CLOSE_Timer = {(byte) 0xff, 0x02, 0x00, 0x0A, (byte) 0xfe};
-    public byte[] SET_TIME = {(byte) 0xff, 10, 0x30, 2019 / 256, (byte) (2019 % 256), 02, 20, 3, 14, 05, 0x0A, (byte) 0xfe};
-    public TextView re_msg, select;
-    public LocationManager lm;//【位置管理】
+    public String LED_STATE_OPEN_Timer = "";
+    public String LED_STATE_CLOSE_Timer = "";
+    public TextView re_msg, select, opentoclose, countdown;
+    public RadioGroup lightnum;
+    public RadioButton light1,light2,light3,light4;
+    public static byte[] ThisOPEN ={'x'};
+    public static byte[] ThisCLOSE ={'x'};
     // 注册广播接收者
     public BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -127,11 +130,12 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
             } else if (action
                     .equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
 
-                Toast.makeText(BluetoothClientActivity.this, "搜索完成", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BluetoothClientActivity_mytimer_auto.this, "搜索完成", Toast.LENGTH_SHORT).show();
                 Log.d("aa", "搜索完成");
             }
 
         }
+
     };
     // 服务端利用线程不断接受客户端信息
     //public  AcceptThread thread;
@@ -139,17 +143,51 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-
-            String s = (String) msg.obj;
-            message = message + s;
-            if (message.contains("RTS_Mon->")) {
-                re_msg.setText(message);
-            }
-            re_msg.setText("");
-            re_msg.setText(message);
+        }
+    };
+    TimerTask tasknowtime = new TimerTask() {
+        public void run() {
+            //每次需要执行的代码放到这里面。
+            String nowtime = dateToString.nowdateToString4();
+            String week = dateToString.dateToWeek(dateToString.nowdateToString2());
+            countdown.setText(week + "  " + nowtime);
+            // Log.d("mytime","系统时间   "+week+"  "+nowtime);
         }
     };
     private String address;
+    TimerTask taskopen = new TimerTask() {
+        public void run() {
+            //每次需要执行的代码放到这里面。
+            String mowtime = dateToString.nowdateToString4();
+            Log.d("mytime", "开灯时间   " + mowtime);
+            Log.d("mytime", "传回的开灯时间   " + LED_STATE_OPEN_Timer);
+            if (LED_STATE_OPEN_Timer.contains(mowtime)) {
+
+                Log.d("mytime", "到开灯时间了");
+                if (address != null) {
+                    sendOrder(NoTimer_machinery.OPEN);
+                }
+
+            }
+        }
+    };
+    TimerTask taskclose = new TimerTask() {
+        public void run() {
+            //每次需要执行的代码放到这里面。
+            String mowtime = dateToString.nowdateToString4();
+            Log.d("mytime", "关灯时间   " + mowtime);
+            Log.d("mytime", "传回的关灯时间   " + LED_STATE_CLOSE_Timer);
+            if (LED_STATE_CLOSE_Timer.contains(mowtime)) {
+                Log.d("mytime", "到关灯时间了");
+                if (address != null) {
+                    sendOrder(NoTimer_machinery.CLOSE);
+                }
+            }
+        }
+    };
+    private Handler mHandler;//将mHandler指定轮询的Looper
+    private MyTimerTaskopen Taskopen1;
+    private MyTimerTaskclose Taskclose1;
 
     public static String byte2HexStr(byte[] b) {
         String stmp = "";
@@ -165,9 +203,9 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("cc", byte2HexStr(NoTimer.Time));
+        Log.d("cc", byte2HexStr(NoTimer_machinery.Time));
         getPremession();//获取虚拟定位权限
-        setContentView(R.layout.layout_buletooth_seacher);
+        setContentView(R.layout.layout_buletooth_seacher_mytimer_auto);
         open = (Button) findViewById(R.id.open);
         close1 = (Button) findViewById(R.id.close);
         opentimer = (Button) findViewById(R.id.opentimer);
@@ -175,57 +213,140 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
         receive1 = (TextView) findViewById(R.id.receive_text);
         re_msg = (TextView) findViewById(R.id.msg);
         select = (TextView) findViewById(R.id.select);
-        Log.d("aa", String.valueOf((int) (TimeOpen.OneDay("1", (byte) 0x04, (byte) 0x04, (byte) 0x04)[3])));
-        //opentimer.setEnabled(false);
+        opentoclose = (TextView) findViewById(R.id.opentoclose);
+        countdown = (TextView) findViewById(R.id.countdown);
+        lightnum=findViewById(R.id.num);
+        light1=findViewById(R.id.light1);
+        light2=findViewById(R.id.light2);
+        light3=findViewById(R.id.light3);
+        light4=findViewById(R.id.light4);
+
+        lightnum.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                // 获取用户选中的灯号
+                String num = "";
+                switch (checkedId) {
+                    case R.id.light1:
+                        num = light1.getText().toString();
+                        ThisOPEN=NoTimer_auto.OPEN1;
+                        ThisCLOSE=NoTimer_auto.CLOSE1;
+                        break;
+                    case R.id.light2:
+                        num = light2.getText().toString();
+                        ThisOPEN=NoTimer_auto.OPEN2;
+                        ThisCLOSE=NoTimer_auto.CLOSE2;
+                        break;
+                    case R.id.light3:
+                        num = light3.getText().toString();
+                        ThisOPEN=NoTimer_auto.OPEN3;
+                        ThisCLOSE=NoTimer_auto.CLOSE3;
+                        break;
+                    case R.id.light4:
+                        num = light4.getText().toString();
+                        ThisOPEN=NoTimer_auto.OPEN4;
+                        ThisCLOSE=NoTimer_auto.CLOSE4;
+                        break;
+                    default:break;
+                }
+
+                // 消息提示
+                Toast.makeText(BluetoothClientActivity_mytimer_auto.this,
+                        "选择的设备是：" + num, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+        java.util.Timer timernowtime = new java.util.Timer(true);
+        timernowtime.schedule(tasknowtime, 1000, 1000);
         open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LED_STATE = NoTimer.OPEN;
+                if (select.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "未连接到蓝牙设备！请重新连接！", Toast.LENGTH_SHORT).show();
+                } else {
+                    receive1.setText("开");
+                    if (address != null) {
+                        sendOrder(ThisOPEN);
 
-                Log.d("aa", "open   " + byte2HexStr(LED_STATE));
-                receive1.setText("开");
-                if (address != null) {
-                    sendOrder();
-
+                    }
                 }
             }
         });
         close1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LED_STATE = NoTimer.CLOSE;
-
-                Log.d("aa", "close1   " + byte2HexStr(LED_STATE));
-                receive1.setText("关");
-                if (address != null) {
-                    sendOrder();
+                if (select.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "未连接到蓝牙设备！请重新连接！", Toast.LENGTH_SHORT).show();
+                } else {
+                    receive1.setText("关");
+                    if (address != null) {
+                        sendOrder(ThisCLOSE);
+                    }
                 }
             }
         });
+
+
+        //TODO 开启定时
         opentimer.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("HandlerLeak")
             @Override
             public void onClick(View view) {
-                receive1.setText("启用定时");
-                Log.d("aa", "启用定时");
-                if (address != null) {
-                    Log.d("ee", "启用定时  进入  sendOrderTimer();");
-                    sendOrderTimer();
+                if (select.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "未连接到蓝牙设备！请重新连接！", Toast.LENGTH_SHORT).show();
+                } else if (LED_STATE_OPEN_Timer.equals("")) {
+                    Toast.makeText(getApplicationContext(), "请设置开灯时间", Toast.LENGTH_SHORT).show();
+                } else if (LED_STATE_CLOSE_Timer.equals("")) {
+                    Toast.makeText(getApplicationContext(), "请设置关灯时间", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    receive1.setText("启用定时");
+//TODO  线程
+
+//定时开
+                    java.util.Timer timeropen = new java.util.Timer(true);
+
+                    if (Taskopen1 != null) {
+                        Taskopen1.cancel();  //将原任务从队列中移除
+                    }
+                    Taskopen1 = new MyTimerTaskopen();  // 新建一个任务
+                    timeropen.schedule(Taskopen1, 1000, 1000);
+//定时关
+
+                    java.util.Timer timerclose = new java.util.Timer(true);
+                    if (Taskclose1 != null) {
+                        Taskclose1.cancel();  //将原任务从队列中移除
+                    }
+                    Taskclose1 = new MyTimerTaskclose();  // 新建一个任务
+                    timerclose.schedule(Taskclose1, 1000, 1000);
 
                 }
             }
         });
+
+        //TODO 关闭定时
         close1timer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LED_STATE_OPEN_Timer = new byte[]{(byte) 0xff, 0x02, 0x20, 0x0A, (byte) 0xfe};
-                receive1.setText("停用定时");
-                if (address != null) {
-                    sendOrderTimer();
+                if (select.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "未连接到蓝牙设备！请重新连接！", Toast.LENGTH_SHORT).show();
+                } else {
+                    receive1.setText("停用定时");
+
+                    if (Taskclose1 != null) {
+                        Taskclose1.cancel();  //将原任务从队列中移除
+                    } else
+                        Toast.makeText(getApplicationContext(), "关灯定时未生效，无需关闭！", Toast.LENGTH_SHORT).show();
+                    if (Taskopen1 != null) {
+                        Taskopen1.cancel();  //将原任务从队列中移除
+                    } else
+                        Toast.makeText(getApplicationContext(), "开灯定时未生效，无需关闭！", Toast.LENGTH_SHORT).show();
+
+
                 }
-                LED_STATE_CLOSE_Timer = new byte[]{(byte) 0xff, 0x02, 0x22, 0x0A, (byte) 0xfe};
-                if (address != null) {
-                    sendOrderTimer();
-                }
+
             }
         });
 
@@ -244,15 +365,6 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
 
         // 用Set集合保持已绑定的设备   将绑定的设备添加到Set集合。
         Set<BluetoothDevice> devices = mBluetoothAdapter.getBondedDevices();
-//        if (devices.size() > 0) {
-//            for (BluetoothDevice bluetoothDevice : devices) {
-//                // 保存到arrayList集合中
-//                String mm="未知";
-//                bluetoothDevices.add(bluetoothDevice.getName() + ":  "
-//                        + bluetoothDevice.getAddress() + "  距离:  "+mm+"\n");
-//
-//            }
-//        }
 
         // 因为蓝牙搜索到设备和完成搜索都是通过广播来告诉其他应用的
         // 这里注册找到设备和完成搜索广播
@@ -295,17 +407,17 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
     }
 
     public void starttimer(View view) {
-        Intent intent = new Intent(BluetoothClientActivity.this, timer_open.class);
+//        taskopen.cancel();
+//        taskclose.cancel();
+//        tasknowtime.cancel();
+        Intent intent = new Intent(BluetoothClientActivity_mytimer_auto.this, timer_open_mytimer.class);
         startActivityForResult(intent, 1);
     }
 
     public void endtimer(View view) {
-        Intent intent = new Intent(BluetoothClientActivity.this, timer_close.class);
-        startActivityForResult(intent, 2);
-    }
 
-    public void settime(View view) {
-        sendTime();
+        Intent intent = new Intent(BluetoothClientActivity_mytimer_auto.this, timer_close_mytimer.class);
+        startActivityForResult(intent, 2);
     }
 
     public void getPremession() {
@@ -340,11 +452,11 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
         if (!grantedLocation) {
             Log.d("aa", "Permission error !!!");
             Toast.makeText(this, "定位权限已拒绝，请手动打开权限!", Toast.LENGTH_LONG).show();
-//            finish();
+
         }
     }
 
-    public void sendOrder() {
+    public void sendOrder(byte[] this_LED_STATE) {
         // 如果选择设备为空则代表还没有选择设备
         if (selectDevice == null) {
             //通过地址获取到该设备
@@ -375,96 +487,10 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
             if (os != null) {
                 // 需要发送的信息
                 Log.d("aa", "拿到输出流");
-                os.write(LED_STATE);
-                Toast.makeText(this, "发送信息成功，请查收", Toast.LENGTH_SHORT).show();
+                os.write(this_LED_STATE);
+                //    Toast.makeText(this, "发送信息成功，请查收", Toast.LENGTH_SHORT).show();
             } else {
                 Log.d("aa", "没有  拿到输出流");
-            }
-        } catch (IOException e) {
-
-            e.printStackTrace();
-            // 如果发生异常则告诉用户发送失败
-            Toast.makeText(this, "发送信息失败", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void sendTime() {
-        // 如果选择设备为空则代表还没有选择设备
-        if (selectDevice == null) {
-            //通过地址获取到该设备
-            selectDevice = mBluetoothAdapter.getRemoteDevice(address);
-            Log.d("aa", "selectDevice1   " + selectDevice);
-        }
-        // 这里需要try catch一下，以防异常抛出
-        try {
-            // 判断客户端接口是否为空
-            if (clientSocket == null) {
-
-                // 获取到客户端接口
-                clientSocket = selectDevice
-                        .createRfcommSocketToServiceRecord(MY_UUID);
-                // 向服务端发送连接
-                clientSocket.connect();
-                select.setText("成功连接：" + selectDevice);
-                Log.d("aa", "连接成功");
-                // 获取到输出流，向外写数据
-                os = clientSocket.getOutputStream();
-                is = clientSocket.getInputStream();
-            }
-
-            // 判断是否拿到输出流
-            if (os != null) {
-                // 需要发送的信息
-                Log.d("aa", "拿到输出流");
-                os.write(SET_TIME);
-                Log.d("aa", "SET_TIME  " + byte2HexStr(SET_TIME));
-                Toast.makeText(this, "发送信息成功，请查收", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.d("aa", "没有  拿到输出流");
-            }
-        } catch (IOException e) {
-
-            e.printStackTrace();
-            // 如果发生异常则告诉用户发送失败
-            Toast.makeText(this, "发送信息失败", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void sendOrderTimer() {
-        // 如果选择设备为空则代表还没有选择设备
-        if (selectDevice == null) {
-            //通过地址获取到该设备
-            selectDevice = mBluetoothAdapter.getRemoteDevice(address);
-            Log.d("aa", "selectDevice1   " + selectDevice);
-        }
-        // 这里需要try catch一下，以防异常抛出
-        try {
-            // 判断客户端接口是否为空
-            if (clientSocket == null) {
-
-                // 获取到客户端接口
-                clientSocket = selectDevice
-                        .createRfcommSocketToServiceRecord(MY_UUID);
-                // 向服务端发送连接
-                clientSocket.connect();
-                select.setText("成功连接：" + selectDevice);
-                Log.d("ee", "连接成功   sendOrderTimer");
-                // 获取到输出流，向外写数据
-                os = clientSocket.getOutputStream();
-
-            }
-
-            // 判断是否拿到输出流
-            if (os != null) {
-                // 需要发送的信息
-                Log.d("ee", "拿到输出流  sendOrderTimer");
-                os.write(LED_STATE_OPEN_Timer);
-                Log.d("ee", "os数据流   LED_STATE_OPEN_Timer   " + byte2HexStr(LED_STATE_OPEN_Timer));
-//                os.write(LED_STATE_CLOSE_Timer);
-//                Log.d("aa","os数据流   LED_STATE_CLOSE_Timer   "+byte2HexStr(LED_STATE_CLOSE_Timer));
-                Toast.makeText(this, "发送信息成功，请查收", Toast.LENGTH_SHORT).show();
-            } else {
-                Log.d("aa", "没有  拿到输出流  sendOrderTimer");
             }
         } catch (IOException e) {
 
@@ -475,40 +501,33 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
     }
 
     //  处理SecondActivity返回来的数据
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (1 == resultCode) {
-            LED_STATE_OPEN_Timer = data.getByteArrayExtra("LED_STATE_TIMER_OPEN");
-            Log.d("ee", "LED_STATE_OPEN_Timer  intent 回传  " + byte2HexStr(LED_STATE_OPEN_Timer));
-            Log.d("ee", "opentimer  自动点击");
+            //TODO 定时开
+            LED_STATE_OPEN_Timer = data.getStringExtra("LED_STATE_TIMER_OPEN");
+            opentoclose.setText("开灯：" + LED_STATE_OPEN_Timer);
+            Log.d("mytime", "LED_STATE_OPEN_Timer  intent 回传  " + LED_STATE_OPEN_Timer);
+
         } else if (2 == resultCode) {
-            LED_STATE_CLOSE_Timer = data.getByteArrayExtra("LED_STATE_TIMER_CLOSE");
-            Log.d("aa", "LED_STATE_CLOSE_Timer  intent 回传  " + byte2HexStr(LED_STATE_CLOSE_Timer));
-            //opentimer.setEnabled(true);
-            opentimer.performClick();
+            //TODO 定时关
+            LED_STATE_CLOSE_Timer = data.getStringExtra("LED_STATE_TIMER_CLOSE");
+            Log.d("mytime", "LED_STATE_CLOSE_Timer  intent 回传  " + LED_STATE_CLOSE_Timer);
+
+
+            if (LED_STATE_OPEN_Timer.contains("周一二三四五六日")) {
+                LED_STATE_OPEN_Timer = LED_STATE_OPEN_Timer.replace("周一二三四五六日", "每日");
+            }
+            if (LED_STATE_CLOSE_Timer.contains("周一二三四五六日")) {
+                LED_STATE_CLOSE_Timer = LED_STATE_CLOSE_Timer.replace("周一二三四五六日", "每日");
+            }
+            opentoclose.setText("开灯：" + LED_STATE_OPEN_Timer + "\n关灯：" + LED_STATE_CLOSE_Timer);
+            // opentimer.performClick();
 
             Log.d("aa", "opentimer  自动点击");
         }
-    }
-
-    public byte[] hexStringToBytes(String hexString) {
-        if (hexString == null || hexString.equals("")) {
-            return null;
-        }
-        hexString = hexString.toUpperCase();
-        int length = hexString.length() / 2;
-        char[] hexChars = hexString.toCharArray();
-        byte[] d = new byte[length];
-        for (int i = 0; i < length; i++) {
-            int pos = i * 2;
-            d[i] = (byte) (charToByte(hexChars[pos]) << 4 | charToByte(hexChars[pos + 1]));
-        }
-        return d;
-    }
-
-    public byte charToByte(char c) {
-        return (byte) "0123456789ABCDEF".indexOf(c);
     }
 
     private class ConnectedThread extends Thread {
@@ -542,9 +561,7 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
                     Log.e("aa", " bytes 长度       " + bytes);
                     String str = new String(buff, "ISO-8859-1");
                     str = str.substring(0, bytes);
-                    Log.e("aa", " str byte2HexStr(buff)       " + byte2HexStr(buff));
-//                    Log.e("aa", " str hexStringToBytes(str)     "+hexStringToBytes(str));
-//                    Log.e("aa", " str byte2HexStr(hexStringToBytes(str))    "+byte2HexStr(hexStringToBytes(str)));
+
                     Message message = handler.obtainMessage();
                     message.obj = byte2HexStr(buff);
                     handler.sendMessage(message);
@@ -556,22 +573,41 @@ public class BluetoothClientActivity extends Activity implements OnItemClickList
 
 
         }
+    }
 
-        public void write(byte[] bytes) {
-            try {
-                outputStream.write(bytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    class MyTimerTaskopen extends TimerTask {
+        @Override
+        public void run() {
+            //每次需要执行的代码放到这里面。
+            String mowtime = dateToString.nowdateToString4();
+            String week = dateToString.dateToWeekNum(mowtime);
+            // Log.d("mytime","开灯时间   "+mowtime);
+            Log.d("mytime", "传回的开灯时间   " + LED_STATE_OPEN_Timer);
+            if (LED_STATE_OPEN_Timer.contains(mowtime) && LED_STATE_OPEN_Timer.contains(week.trim())) {
 
-        public void cancel() {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                Log.d("mytime", "到开灯时间了");
+                if (address != null) {
+                    sendOrder(ThisOPEN);
+                }
+
             }
         }
     }
 
+    class MyTimerTaskclose extends TimerTask {
+        @Override
+        public void run() {
+            //每次需要执行的代码放到这里面。
+            String mowtime = dateToString.nowdateToString4();
+            String week = dateToString.dateToWeekNum(mowtime);
+            //  Log.d("mytime","关灯时间   "+mowtime);
+            Log.d("mytime", "传回的关灯时间   " + LED_STATE_CLOSE_Timer);
+            if (LED_STATE_CLOSE_Timer.contains(mowtime) && LED_STATE_CLOSE_Timer.contains(week.trim())) {
+                Log.d("mytime", "到关灯时间了");
+                if (address != null) {
+                    sendOrder(ThisCLOSE);
+                }
+            }
+        }
+    }
 }

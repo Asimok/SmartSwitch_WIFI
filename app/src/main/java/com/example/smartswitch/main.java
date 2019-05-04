@@ -25,7 +25,7 @@ public class main extends Activity {
         smart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(intent2);
+                startActivity(int ent2);
                 finish();
             }
         });
