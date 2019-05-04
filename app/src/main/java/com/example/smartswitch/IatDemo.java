@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.speech.tts.TextToSpeech;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +33,7 @@ import com.iflytek.cloud.util.ResourceUtil;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 
 import speech.setting.IatSettings;
 import speech.util.FucUtil;
@@ -53,7 +55,7 @@ public class IatDemo extends Activity implements OnClickListener {
 	private SharedPreferences mSharedPreferences;
 	private boolean mTranslateEnable = false;
 	private String mEngineType = "cloud";
-	
+	private TextToSpeech texttospeech;
 	@SuppressLint("ShowToast")
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -72,6 +74,24 @@ public class IatDemo extends Activity implements OnClickListener {
 		mSharedPreferences = getSharedPreferences(IatSettings.PREFER_NAME, Activity.MODE_PRIVATE);
 		mToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
 		mResultText = ((EditText)findViewById(R.id.iat_text));
+
+		// 初始化TextToSpeech对象
+		texttospeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+
+			@Override
+			public void onInit(int status) {
+				// 如果装载TTS引擎成功
+				if (status == TextToSpeech.SUCCESS) {
+					// 设置使用美式英语朗读
+					int result = texttospeech.setLanguage(Locale.US);
+					// 如果不支持所设置的语言
+					if (result != TextToSpeech.LANG_COUNTRY_AVAILABLE
+							&& result != TextToSpeech.LANG_AVAILABLE) {
+						Log.d("ff", "TTS暂时不支持这种语言的朗读！");
+					}
+				}
+			}
+		});
 	}
 
 	/**
@@ -79,31 +99,15 @@ public class IatDemo extends Activity implements OnClickListener {
 	 */
 	private void initLayout(){
 		findViewById(R.id.iat_recognize).setOnClickListener(this);
-		findViewById(R.id.iat_recognize_stream).setOnClickListener(this);
-		findViewById(R.id.iat_upload_contacts).setOnClickListener(this);
-		findViewById(R.id.iat_upload_userwords).setOnClickListener(this);
+
 		findViewById(R.id.iat_stop).setOnClickListener(this);
 		findViewById(R.id.iat_cancel).setOnClickListener(this);
 		findViewById(R.id.image_iat_set).setOnClickListener(this);
 
 
-		//选择云端or本地
-		RadioGroup group = (RadioGroup)this.findViewById(R.id.iat_radioGroup);
-		group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				if(checkedId == R.id.iat_radioCloud) {
-					findViewById(R.id.iat_upload_contacts).setEnabled(true);
-					findViewById(R.id.iat_upload_userwords).setEnabled(true);
-					mEngineType = SpeechConstant.TYPE_CLOUD;
-				}else if(checkedId == R.id.iat_radioLocal) {
-					//离线听写不支持联系人/热词上传
-					findViewById(R.id.iat_upload_contacts).setEnabled(false);
-					findViewById(R.id.iat_upload_userwords).setEnabled(false);
-					mEngineType =  SpeechConstant.TYPE_LOCAL;
-				}
-			}
-		});
+
+	    mEngineType = SpeechConstant.TYPE_CLOUD;
+
 	}
 
 	int ret = 0;// 函数调用返回值
@@ -144,65 +148,6 @@ public class IatDemo extends Activity implements OnClickListener {
 				}
 			}
 			break;
-		// 音频流识别
-		case R.id.iat_recognize_stream:
-			mResultText.setText(null);// 清空显示内容
-			mIatResults.clear();
-			// 设置参数
-			setParam();
-			// 设置音频来源为外部文件
-			mIat.setParameter(SpeechConstant.AUDIO_SOURCE, "-1");
-			// 也可以像以下这样直接设置音频文件路径识别（要求设置文件在sdcard上的全路径）：
-			// mIat.setParameter(SpeechConstant.AUDIO_SOURCE, "-2");
-			// mIat.setParameter(SpeechConstant.ASR_SOURCE_PATH, "sdcard/XXX/XXX.pcm");
-			ret = mIat.startListening(mRecognizerListener);
-			if (ret != ErrorCode.SUCCESS) {
-				showTip("识别失败,错误码：" + ret);
-			} else {
-				byte[] audioData = FucUtil.readAudioFile(IatDemo.this, "iattest.wav");
-				
-				if (null != audioData) {
-					showTip(getString(R.string.text_begin_recognizer));
-					// 一次（也可以分多次）写入音频文件数据，数据格式必须是采样率为8KHz或16KHz（本地识别只支持16K采样率，云端都支持），位长16bit，单声道的wav或者pcm
-					// 写入8KHz采样的音频时，必须先调用setParameter(SpeechConstant.SAMPLE_RATE, "8000")设置正确的采样率
-					// 注：当音频过长，静音部分时长超过VAD_EOS将导致静音后面部分不能识别
-					mIat.writeAudio(audioData, 0, audioData.length);
-					mIat.stopListening();
-				} else {
-					mIat.cancel();
-					showTip("读取音频流失败");
-				}
-			}
-			break;
-		// 停止听写
-		case R.id.iat_stop:
-			mIat.stopListening();
-			showTip("停止听写");
-			break;
-		// 取消听写
-		case R.id.iat_cancel:
-			mIat.cancel();
-			showTip("取消听写");
-			break;
-		// 上传联系人
-		case R.id.iat_upload_contacts:
-			showTip(getString(R.string.text_upload_contacts));
-			ContactManager mgr = ContactManager.createManager(IatDemo.this, mContactListener);
-			mgr.asyncQueryAllContactsName();
-			break;
-			// 上传用户词表
-		case R.id.iat_upload_userwords:
-			showTip(getString(R.string.text_upload_userwords));
-			String contents = FucUtil.readFile(IatDemo.this, "userwords","utf-8");
-			mResultText.setText(contents);
-			// 指定引擎类型
-			mIat.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
-			// 置编码类型
-			mIat.setParameter(SpeechConstant.TEXT_ENCODING, "utf-8");
-			ret = mIat.updateLexicon("userword", contents, mLexiconListener);
-			if (ret != ErrorCode.SUCCESS)
-				showTip("上传热词失败,错误码：" + ret);
-			break;
 		default:
 			break;
 		}
@@ -218,21 +163,6 @@ public class IatDemo extends Activity implements OnClickListener {
 			Log.d(TAG, "SpeechRecognizer init() code = " + code);
 			if (code != ErrorCode.SUCCESS) {
 				showTip("初始化失败，错误码：" + code);
-			}
-		}
-	};
-
-	/**
-	 * 上传联系人/词表监听器。
-	 */
-	private LexiconListener mLexiconListener = new LexiconListener() {
-
-		@Override
-		public void onLexiconUpdated(String lexiconId, SpeechError error) {
-			if (error != null) {
-				showTip(error.toString());
-			} else {
-				showTip(getString(R.string.text_upload_success));
 			}
 		}
 	};
@@ -273,6 +203,8 @@ public class IatDemo extends Activity implements OnClickListener {
 				String text = JsonParser.parseIatResult(results.getResultString());
 				mResultText.append(text);
 				mResultText.setSelection(mResultText.length());
+
+
 			}
 			
 			if(isLast) {
@@ -303,11 +235,24 @@ public class IatDemo extends Activity implements OnClickListener {
 	private RecognizerDialogListener mRecognizerDialogListener = new RecognizerDialogListener() {
 		public void onResult(RecognizerResult results, boolean isLast) {
 			Log.d(TAG, "recognizer result：" + results.getResultString());
-			
+
 			if( mTranslateEnable ){
 				printTransResult( results );
 			}else{
 				String text = JsonParser.parseIatResult(results.getResultString());
+				//TODO
+				// 朗读
+                if(text.contains("开")&&text.contains("灯"))
+                {
+                    texttospeech.speak("你说了开灯", TextToSpeech.QUEUE_ADD,
+                            null);
+                }
+				else if(text.contains("关")&&text.contains("灯"))
+				{
+					texttospeech.speak("你说了关灯", TextToSpeech.QUEUE_ADD,
+							null);
+				}
+
 				mResultText.append(text);
 				mResultText.setSelection(mResultText.length());
 			}
@@ -326,31 +271,6 @@ public class IatDemo extends Activity implements OnClickListener {
 
 	};
 
-	/**
-	 * 获取联系人监听器。
-	 */
-	private ContactListener mContactListener = new ContactListener() {
-
-		@Override
-		public void onContactQueryFinish(final String contactInfos, boolean changeFlag) {
-			// 注：实际应用中除第一次上传之外，之后应该通过changeFlag判断是否需要上传，否则会造成不必要的流量.
-			// 每当联系人发生变化，该接口都将会被回调，可通过ContactManager.destroy()销毁对象，解除回调。
-			// if(changeFlag) {
-			// 指定引擎类型
-			runOnUiThread(new Runnable() {
-				public void run() {
-					mResultText.setText(contactInfos);
-				}
-			});
-			
-			mIat.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
-			mIat.setParameter(SpeechConstant.TEXT_ENCODING, "utf-8");
-			ret = mIat.updateLexicon("contact", contactInfos, mLexiconListener);
-			if (ret != ErrorCode.SUCCESS) {
-				showTip("上传联系人失败：" + ret);
-			}
-		}
-	};
 
 	private void showTip(final String str)
 	{
@@ -456,4 +376,5 @@ public class IatDemo extends Activity implements OnClickListener {
 			mIat.destroy();
 		}
 	}
+
 }

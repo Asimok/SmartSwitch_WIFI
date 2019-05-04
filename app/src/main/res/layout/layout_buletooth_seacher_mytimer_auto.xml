@@ -84,6 +84,16 @@
                 android:text="关灯"
                 android:textColor="#ffffff"
                 android:textSize="@dimen/sp_16" />
+            <Button
+                android:id="@+id/yuyin"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_60"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:background="#03A9F4"
+                android:text="语音控制"
+                android:textColor="#ffffff"
+                android:textSize="@dimen/sp_16" />
 
         </LinearLayout>
 
