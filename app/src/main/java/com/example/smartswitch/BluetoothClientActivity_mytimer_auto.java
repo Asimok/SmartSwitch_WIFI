@@ -812,14 +812,14 @@ public class BluetoothClientActivity_mytimer_auto extends Activity implements On
                 // 朗读
                 if(text.contains("开")&&text.contains("灯"))
                 {
-                    texttospeech.speak("你说了开灯", TextToSpeech.QUEUE_ADD,
+                    texttospeech.speak("已为您开灯", TextToSpeech.QUEUE_ADD,
                             null);
                     sendOrder(ThisOPEN);
                     Log.d("aa", "ThisOPEN  "+ThisOPEN.toString());
                 }
                 else if(text.contains("关")&&text.contains("灯"))
                 {
-                    texttospeech.speak("你说了关灯", TextToSpeech.QUEUE_ADD,
+                    texttospeech.speak("已为您关灯", TextToSpeech.QUEUE_ADD,
                             null);
                     sendOrder(ThisCLOSE);
                     Log.d("aa", "ThisCLOSE  "+ThisCLOSE.toString());

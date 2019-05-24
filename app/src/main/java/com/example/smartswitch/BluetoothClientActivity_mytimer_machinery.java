@@ -558,6 +558,8 @@ public class BluetoothClientActivity_mytimer_machinery extends Activity implemen
 
             e.printStackTrace();
             // 如果发生异常则告诉用户发送失败
+            texttospeech.speak("指令发送失败", TextToSpeech.QUEUE_ADD,
+                    null);
             Toast.makeText(this, "发送信息失败", Toast.LENGTH_SHORT).show();
         }
     }
@@ -763,14 +765,14 @@ public class BluetoothClientActivity_mytimer_machinery extends Activity implemen
                 // 朗读
                 if(text.contains("开")&&text.contains("灯"))
                 {
-                    texttospeech.speak("你说了开灯", TextToSpeech.QUEUE_ADD,
+                    texttospeech.speak("已为您开灯", TextToSpeech.QUEUE_ADD,
                             null);
                     sendOrder(NoTimer_machinery.OPEN);
                     Log.d("aa", "ThisOPEN  "+NoTimer_machinery.OPEN.toString());
                 }
                 else if(text.contains("关")&&text.contains("灯"))
                 {
-                    texttospeech.speak("你说了关灯", TextToSpeech.QUEUE_ADD,
+                    texttospeech.speak("已为您关灯", TextToSpeech.QUEUE_ADD,
                             null);
                     sendOrder(NoTimer_machinery.CLOSE);
                     Log.d("aa", "ThisCLOSE  "+NoTimer_machinery.CLOSE.toString());

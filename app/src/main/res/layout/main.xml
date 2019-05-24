@@ -20,12 +20,5 @@
         android:layout_margin="@dimen/dp_10"
         android:textSize="18sp"
         android:text="智能盒子"/>
-    <Button
-        android:id="@+id/yuyin"
-        android:layout_width="@dimen/dp_100"
-        android:layout_height="@dimen/dp_100"
-        android:layout_margin="@dimen/dp_10"
-        android:textSize="18sp"
-        android:text="语音识别"/>
 
 </LinearLayout>
