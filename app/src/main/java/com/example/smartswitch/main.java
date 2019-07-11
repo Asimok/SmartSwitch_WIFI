@@ -17,7 +17,7 @@ public class main extends Activity {
         setContentView(R.layout.main);
         Button jixie=findViewById(R.id.jixie);
         Button smart=findViewById(R.id.smart);
-        Button yuyin=findViewById(R.id.yuyin);
+
         final Intent intent2=new Intent(this,BluetoothClientActivity_mytimer_auto.class);
         final Intent intent1=new Intent(this,BluetoothClientActivity_mytimer_machinery.class);
         final Intent intent3=new Intent(this,IatDemo.class);
@@ -36,13 +36,7 @@ public class main extends Activity {
                 finish();
             }
         });
-        yuyin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(intent3);
-                finish();
-            }
-        });
+
     }
     private void requestPermissions(){
         try {

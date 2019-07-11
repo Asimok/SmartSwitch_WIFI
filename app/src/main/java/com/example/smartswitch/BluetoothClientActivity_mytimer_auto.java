@@ -810,21 +810,35 @@ public class BluetoothClientActivity_mytimer_auto extends Activity implements On
                 String text = JsonParser.parseIatResult(results.getResultString());
                 //TODO
                 // 朗读
+                //NoTimer_auto.OPEN1
                 if(text.contains("开")&&text.contains("灯"))
                 {
                     texttospeech.speak("已为您开灯", TextToSpeech.QUEUE_ADD,
                             null);
-                    sendOrder(ThisOPEN);
+                    sendOrder(NoTimer_auto.OPEN1);
                     Log.d("aa", "ThisOPEN  "+ThisOPEN.toString());
                 }
                 else if(text.contains("关")&&text.contains("灯"))
                 {
                     texttospeech.speak("已为您关灯", TextToSpeech.QUEUE_ADD,
                             null);
-                    sendOrder(ThisCLOSE);
+                    sendOrder(NoTimer_auto.CLOSE1);
                     Log.d("aa", "ThisCLOSE  "+ThisCLOSE.toString());
                 }
-
+                if(text.contains("开")&&text.contains("风扇"))
+                {
+                    texttospeech.speak("已为您打开风扇", TextToSpeech.QUEUE_ADD,
+                            null);
+                    sendOrder(NoTimer_auto.OPEN2);
+                    Log.d("aa", "ThisOPEN  "+ThisOPEN.toString());
+                }
+                else if(text.contains("关")&&text.contains("风扇"))
+                {
+                    texttospeech.speak("已为您关闭风扇", TextToSpeech.QUEUE_ADD,
+                            null);
+                    sendOrder(NoTimer_auto.CLOSE2);
+                    Log.d("aa", "ThisCLOSE  "+ThisCLOSE.toString());
+                }
 
             }
         }
