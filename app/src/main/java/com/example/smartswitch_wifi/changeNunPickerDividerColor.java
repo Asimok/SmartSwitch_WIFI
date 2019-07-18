@@ -1,4 +1,4 @@
-package com.example.smartswitch;
+package com.example.smartswitch_wifi;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;

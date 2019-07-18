@@ -1,4 +1,4 @@
-package com.example.smartswitch;
+package com.example.smartswitch_wifi;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -13,12 +13,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
-import com.iflytek.cloud.LexiconListener;
 import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
@@ -26,8 +24,6 @@ import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.ui.RecognizerDialog;
 import com.iflytek.cloud.ui.RecognizerDialogListener;
-import com.iflytek.cloud.util.ContactManager;
-import com.iflytek.cloud.util.ContactManager.ContactListener;
 import com.iflytek.cloud.util.ResourceUtil;
 
 
@@ -36,7 +32,6 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import speech.setting.IatSettings;
-import speech.util.FucUtil;
 import speech.util.JsonParser;
 
 public class IatDemo extends Activity implements OnClickListener {

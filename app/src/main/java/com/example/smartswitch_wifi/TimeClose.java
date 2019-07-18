@@ -1,4 +1,4 @@
-package com.example.smartswitch;
+package com.example.smartswitch_wifi;
 
 public class TimeClose {
     public static byte[] OneDayClose(String week, byte hh, byte mm, byte ss) {

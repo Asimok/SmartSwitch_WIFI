@@ -7,7 +7,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.view.Window;
 
-import com.example.smartswitch.R;
+import com.example.smartswitch_wifi.R;
 
 import speech.util.SettingTextWatcher;
 

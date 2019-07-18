@@ -1,4 +1,4 @@
-package com.example.smartswitch;
+package com.example.smartswitch_wifi;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import java.util.UUID;
 
-public class timer_close extends AppCompatActivity implements NumberPicker.OnValueChangeListener, View.OnClickListener {
+public class timer_close_mytimer extends AppCompatActivity implements NumberPicker.OnValueChangeListener, View.OnClickListener {
     public final UUID MY_UUID = UUID
             .fromString("00001101-0000-1000-8000-00805F9B34FB");
     public byte[] LED_STATE_TIMER_CLOSE = {(byte) 0xff, 0x02, 0x00, 0x0A, (byte) 0xfe};
@@ -318,7 +318,7 @@ public class timer_close extends AppCompatActivity implements NumberPicker.OnVal
                 NumberPickerSecond.setValue(NumberPickerSecond.getValue());
                 Hour = String.format("%02d", NumberPickerHour.getValue());
                 Second = String.format("%02d", NumberPickerSecond.getValue());
-                //checkweek2();
+                // checkweek2();
                 break;
             case R.id.numberPickerSecond:
                 Second = String.valueOf(String.format("%02d", newVal));
@@ -326,14 +326,13 @@ public class timer_close extends AppCompatActivity implements NumberPicker.OnVal
                 NumberPickerMinute.setValue(NumberPickerMinute.getValue());
                 Hour = String.format("%02d", NumberPickerHour.getValue());
                 Minute = String.format("%02d", NumberPickerMinute.getValue());
-                //checkweek2();
+                // checkweek2();
                 break;
             default:
                 break;
         }
         date = Hour + Minute + Second;
         nowtime = Hour + ":" + Minute + ":" + Second;
-        Log.d("aa", "nowtime  onvalue   " + nowtime);
 
         setTitle("关闭时间:  " + Hour + " 时 " + Minute + " 分 " + Second + " 秒");
 
@@ -342,8 +341,8 @@ public class timer_close extends AppCompatActivity implements NumberPicker.OnVal
     public void open(View view) {
 
 
-        if (!ck7.isChecked() && !ckr.isChecked() || date.equals("000000")) {
-            Toast.makeText(this, "请选择时长",
+        if (!ck7.isChecked() && !ckr.isChecked() || date.equals("000000") || ops.equals("00000000")) {
+            Toast.makeText(this, "请设置结束时时间",
                     Toast.LENGTH_SHORT).show();
 
         } else {
@@ -365,59 +364,67 @@ public class timer_close extends AppCompatActivity implements NumberPicker.OnVal
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ck7: {
+                if (date.equals("000000")) {
+                    Toast.makeText(this, "请设置关灯时间  " + ops, Toast.LENGTH_LONG).show();
+                } else {
+                    open.setEnabled(true);
+                    z1.setVisibility(View.VISIBLE);
+                    z2.setVisibility(View.VISIBLE);
+                    z3.setVisibility(View.VISIBLE);
+                    z4.setVisibility(View.VISIBLE);
+                    z5.setVisibility(View.VISIBLE);
+                    z6.setVisibility(View.VISIBLE);
+                    z7.setVisibility(View.VISIBLE);
+                    z1.setChecked(true);
+                    z2.setChecked(true);
+                    z3.setChecked(true);
+                    z4.setChecked(true);
+                    z5.setChecked(true);
+                    z6.setChecked(true);
+                    z7.setChecked(true);
+                    ckr.setChecked(false);
+                    z1.setEnabled(false);
+                    z2.setEnabled(false);
+                    z3.setEnabled(false);
+                    z4.setEnabled(false);
+                    z5.setEnabled(false);
+                    z6.setEnabled(false);
+                    z7.setEnabled(false);
 
-                z1.setVisibility(View.VISIBLE);
-                z2.setVisibility(View.VISIBLE);
-                z3.setVisibility(View.VISIBLE);
-                z4.setVisibility(View.VISIBLE);
-                z5.setVisibility(View.VISIBLE);
-                z6.setVisibility(View.VISIBLE);
-                z7.setVisibility(View.VISIBLE);
-                z1.setChecked(true);
-                z2.setChecked(true);
-                z3.setChecked(true);
-                z4.setChecked(true);
-                z5.setChecked(true);
-                z6.setChecked(true);
-                z7.setChecked(true);
-                ckr.setChecked(false);
-                z1.setEnabled(false);
-                z2.setEnabled(false);
-                z3.setEnabled(false);
-                z4.setEnabled(false);
-                z5.setEnabled(false);
-                z6.setEnabled(false);
-                z7.setEnabled(false);
-                open.setEnabled(true);
-                ops = "01111111";
-                Log.d("bb", "重复时间  " + ops);
-                Toast.makeText(this, "重复时间  " + ops, Toast.LENGTH_LONG).show();
+                    ops = "01111111";
+                    Log.d("bb", "重复时间  " + ops);
+                    Toast.makeText(this, "重复时间  " + ops, Toast.LENGTH_LONG).show();
+                }
             }
             break;
             case R.id.ckr: {//自定义
-                Log.d("bb", "ck7");
-                z1.setVisibility(View.VISIBLE);
-                z2.setVisibility(View.VISIBLE);
-                z3.setVisibility(View.VISIBLE);
-                z4.setVisibility(View.VISIBLE);
-                z5.setVisibility(View.VISIBLE);
-                z6.setVisibility(View.VISIBLE);
-                z7.setVisibility(View.VISIBLE);
-                ck7.setChecked(false);
-                checkweek();
+                if (date.equals("000000")) {
+                    Toast.makeText(this, "请设置关灯时间  " + ops, Toast.LENGTH_LONG).show();
+                } else {
+                    open.setEnabled(true);
+                    z1.setVisibility(View.VISIBLE);
+                    z2.setVisibility(View.VISIBLE);
+                    z3.setVisibility(View.VISIBLE);
+                    z4.setVisibility(View.VISIBLE);
+                    z5.setVisibility(View.VISIBLE);
+                    z6.setVisibility(View.VISIBLE);
+                    z7.setVisibility(View.VISIBLE);
+                    ck7.setChecked(false);
+                    checkweek();
 
-                z1.setEnabled(true);
-                z2.setEnabled(true);
-                z3.setEnabled(true);
-                z4.setEnabled(true);
-                z5.setEnabled(true);
-                z6.setEnabled(true);
-                z7.setEnabled(true);
-                //open.setEnabled(true);
+                    z1.setEnabled(true);
+                    z2.setEnabled(true);
+                    z3.setEnabled(true);
+                    z4.setEnabled(true);
+                    z5.setEnabled(true);
+                    z6.setEnabled(true);
+                    z7.setEnabled(true);
 
-                ops = "0" + op1 + op2 + op3 + op4 + op5 + op6 + op7;
-                Log.d("bb", "重复时间  " + ops);
-                Toast.makeText(this, "重复时间  " + ops, Toast.LENGTH_LONG).show();
+
+                    ops = "0" + op1 + op2 + op3 + op4 + op5 + op6 + op7;
+                    Log.d("bb", "重复时间  " + ops);
+                    Toast.makeText(this, "重复时间  " + ops, Toast.LENGTH_LONG).show();
+                }
             }
             break;
         }
@@ -429,11 +436,27 @@ public class timer_close extends AppCompatActivity implements NumberPicker.OnVal
     public String initweek(String ops) {
 
         String week = "";
+        String aa = "";
         for (int i = 0; i < ops.length(); i++) {
             if (!ops.substring(i, i + 1).equals("0")) {
-                week = week + String.valueOf(i);
+                //week=week+String.valueOf(i);
+                if (i == 1) {
+                    week = week + "一";
+                } else if (i == 2) {
+                    week = week + "二";
+                } else if (i == 3) {
+                    week = week + "三";
+                } else if (i == 4) {
+                    week = week + "四";
+                } else if (i == 5) {
+                    week = week + "五";
+                } else if (i == 6) {
+                    week = week + "六";
+                } else if (i == 7) {
+                    week = week + "日";
+                }
             }
-            Log.d("aa", ops.substring(i, i + 1));
+            // Log.d("aa", ops.substring(i,i+1));
         }
         Log.d("aa", "week    " + week);
         return week;
@@ -483,9 +506,10 @@ public class timer_close extends AppCompatActivity implements NumberPicker.OnVal
     ///////////////////////////////////////////////////
     public void sendOrder() {
         Intent intent = new Intent();
-        intent.putExtra("LED_STATE_TIMER_CLOSE", LED_STATE_TIMER_CLOSE);
+        intent.putExtra("LED_STATE_TIMER_CLOSE", "周" + initweek(ops) + "   " + nowtime);
+        Log.d("mytime", "周" + initweek(ops) + "   " + nowtime);
         setResult(2, intent);
-        timer_close.this.finish();
+        timer_close_mytimer.this.finish();
     }
 
     ///////////////////////////////////////////////////

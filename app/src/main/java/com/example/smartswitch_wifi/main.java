@@ -1,4 +1,4 @@
-package com.example.smartswitch;
+package com.example.smartswitch_wifi;
 
 import android.Manifest;
 import android.app.Activity;
@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 public class main extends Activity {
     protected void onCreate(Bundle savedInstanceState) {

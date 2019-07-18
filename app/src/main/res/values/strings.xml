@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SmartSwitch</string>
+    <string name="app_name">智能开关-Wifi</string>
     <!--<string name="app_name">讯飞语音示例v5+</string>-->
     <!-- 请替换成在语音云官网申请的appid -->
     <string name="app_id">5c90ce2c</string>

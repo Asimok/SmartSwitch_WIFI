@@ -22,7 +22,7 @@
             android:text="   "
             android:textSize="@dimen/sp_20" />
 
-        <com.example.smartswitch.changeNunPickerFontSizeAndColor
+        <com.example.smartswitch_wifi.changeNunPickerFontSizeAndColor
             android:id="@+id/numberPickerHour"
             android:layout_width="@dimen/dp_0"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             android:text="时"
             android:textSize="@dimen/sp_13" />
 
-        <com.example.smartswitch.changeNunPickerFontSizeAndColor
+        <com.example.smartswitch_wifi.changeNunPickerFontSizeAndColor
             android:id="@+id/numberPickerMinute"
             android:layout_width="@dimen/dp_0"
             android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
             android:text="分"
             android:textSize="@dimen/sp_13" />
 
-        <com.example.smartswitch.changeNunPickerFontSizeAndColor
+        <com.example.smartswitch_wifi.changeNunPickerFontSizeAndColor
             android:id="@+id/numberPickerSecond"
             android:layout_width="@dimen/dp_0"
             android:layout_height="wrap_content"

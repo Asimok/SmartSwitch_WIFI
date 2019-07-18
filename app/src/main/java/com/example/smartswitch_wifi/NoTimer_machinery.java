@@ -1,4 +1,4 @@
-package com.example.smartswitch;
+package com.example.smartswitch_wifi;
 
 public class NoTimer_machinery {
     public static byte[] CLOSE = {(byte) 0xff, 0x02, 0x01, 0x0A, (byte) 0xfe};//立即关闭
